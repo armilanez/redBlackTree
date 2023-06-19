@@ -13,7 +13,8 @@ enum cores
 
 typedef struct no
 {
-  int dado, cor;
+  int quantidade, cor;
+  char nomeProduto[50];
   struct no *filho[2];
   // Os filhos serão armazenados num array de 2 espaços.
   // O filho à esquerda é o filho[0] e o filho à direita é o filho[1].
@@ -22,13 +23,14 @@ typedef struct no
 No *raiz = NULL;
 
 // Create a RUBRO-NEGRO tree
-No *criaNo(int dado)
+No *criaNo(int quantidade, char *nomeProduto)
 {
   No *novoNo;
   novoNo = (No *)malloc(sizeof(No));
 
   novoNo->cor = RUBRO;
-  novoNo->dado = dado;
+  novoNo->quantidade = quantidade;
+  strcpy(novoNo->nomeProduto, nomeProduto);
   
   novoNo->filho[0] = NULL;
   novoNo->filho[1] = NULL;
@@ -37,14 +39,14 @@ No *criaNo(int dado)
 }
 
 // Função responsável por inserir um nó na árvore.
-void insereNo(int dado)
+void insereNo(int quantidade, char *nomeProduto)
 {
   No *arvore[98], *atravessador, *novoNo, *atual, *aux;
   int caminhoPercorrido[98], altura = 0, index;
   atravessador = raiz;
   if (!raiz)
   {
-    raiz = criaNo(dado);
+    raiz = criaNo(quantidade, nomeProduto);
     return;
   }
 
@@ -53,12 +55,17 @@ void insereNo(int dado)
   while (atravessador != NULL)
   {
     
-    index = (dado - atravessador->dado) > 0 ? 1 : 0;
+    if((quantidade - atravessador->quantidade) > 0){
+      index = 1;
+    }
+    else {
+      index = 0;
+    }
     arvore[altura] = atravessador;
     atravessador = atravessador->filho[index];
     caminhoPercorrido[altura++] = index;
   }
-  arvore[altura - 1]->filho[index] = novoNo = criaNo(dado);
+  arvore[altura - 1]->filho[index] = novoNo = criaNo(quantidade, nomeProduto);
   while ((altura >= 3) && (arvore[altura - 1]->cor == RUBRO))
   {
     if (caminhoPercorrido[altura - 2] == 0)
@@ -144,7 +151,7 @@ void insereNo(int dado)
 }
 
 // Delete a no
-void deletion(int dado)
+void removeNo(int quantidade)
 {
   No *arvore[98], *atual, *aux;
 
@@ -165,12 +172,12 @@ void deletion(int dado)
   atravessador = raiz;
   while (atravessador != NULL)
   {
-    if ((dado - atravessador->dado) == 0)
+    if ((quantidade - atravessador->quantidade) == 0)
       break;
 
     /*A array direcao[] vai indicar se iremos descer para a esquerda ou direita.
       drecao[0] significa descer à esquerda e direcao[1] significa descer à direita.*/
-    if((dado - atravessador->dado) > 0) {
+    if((quantidade - atravessador->quantidade) > 0) {
       direcao = 1;
     }
     else {
@@ -405,7 +412,7 @@ void imprimeArvore(No *no)
   if (no != NULL)
   {
     imprimeArvore(no->filho[0]);
-    printf("%d  ", no->dado);
+    printf("%s: %d\n", no->nomeProduto, no->quantidade);
     imprimeArvore(no->filho[1]);
   }
   return;
@@ -414,7 +421,8 @@ void imprimeArvore(No *no)
 // Função main, onde a árvore é operada.
 int main()
 {
-  int escolha, dado;
+  int escolha, quantidade;
+  char nomeProduto[50];
   while (1)
   {
     printf("Olá. Que operação deseja realizar?\n\n");
@@ -427,15 +435,17 @@ int main()
     switch (escolha)
     {
     case 1:
+      printf("Insira o nome do produto: ");
+      scanf("%s", nomeProduto);
       printf("Insira a quantidade desejada:");
-      scanf("%d", &dado);
-      insereNo(dado);
+      scanf("%d", &quantidade);
+      insereNo(quantidade, nomeProduto);
       printf("\n");
       break;
     case 2:
       printf("Insira o nome do elemento que deseja excluir:");
-      scanf("%d", &dado);
-      deletion(dado);
+      scanf("%d", &quantidade);
+      removeNo(quantidade);
       printf("\n");
       break;
     case 6:
