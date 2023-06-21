@@ -18,7 +18,7 @@ typedef struct no
   struct no *filho[2];
   // Os filhos serão armazenados num array de 2 espaços.
   // O filho à esquerda é o filho[0] e o filho à direita é o filho[1].
-}No;
+} No;
 
 No *raiz = NULL;
 
@@ -32,10 +32,10 @@ No *criaNo(int id, int quantidade, char *nomeProduto)
   novoNo->id = id;
   novoNo->quantidade = quantidade;
   strcpy(novoNo->nomeProduto, nomeProduto);
-  
+
   novoNo->filho[0] = NULL;
   novoNo->filho[1] = NULL;
-  
+
   return novoNo;
 }
 
@@ -56,15 +56,18 @@ void insereNo(int id, int quantidade, char *nomeProduto)
   while (atravessador != NULL)
   {
 
-    if(atravessador->id == id) {
+    if (atravessador->id == id)
+    {
       printf("Cada produto deve ter um ID único. \n");
       return;
     }
-    
-    if((id - atravessador->id) > 0){
+
+    if ((id - atravessador->id) > 0)
+    {
       index = 1;
     }
-    else {
+    else
+    {
       index = 0;
     }
     arvore[altura] = atravessador;
@@ -161,8 +164,8 @@ void removeNo(int id)
 {
   No *arvore[98], *atual, *aux;
 
-  //O ponteiro atravessador é o que comumente vemos em aula como T.
-  //É aquele ponteiro que vai atravessando e traçando o caminho percorrido pela árvore.
+  // O ponteiro atravessador é o que comumente vemos em aula como T.
+  // É aquele ponteiro que vai atravessando e traçando o caminho percorrido pela árvore.
   No *atravessador;
 
   No *paiAtual, *filhoAtual, *irmaoAtual;
@@ -183,13 +186,15 @@ void removeNo(int id)
 
     /*A array direcao[] vai indicar se iremos descer para a esquerda ou direita.
       drecao[0] significa descer à esquerda e direcao[1] significa descer à direita.*/
-    if((id - atravessador->id) > 0) {
+    if ((id - atravessador->id) > 0)
+    {
       direcao = 1;
     }
-    else {
+    else
+    {
       direcao = 0;
     }
-    
+
     arvore[altura] = atravessador;
     caminhoPercorrido[altura++] = direcao;
     atravessador = atravessador->filho[direcao];
@@ -424,7 +429,8 @@ void imprimeArvore(No *no)
   return;
 }
 
-int existe(int id) {
+int existe(int id)
+{
 
   No *atravessador;
   atravessador = raiz;
@@ -433,20 +439,22 @@ int existe(int id) {
   while (atravessador != NULL)
   {
 
-    if(atravessador->id == id) {
+    if (atravessador->id == id)
+    {
       return 1;
     }
-    
-    if((id - atravessador->id) > 0){
+
+    if ((id - atravessador->id) > 0)
+    {
       index = 1;
     }
-    else {
+    else
+    {
       index = 0;
     }
     atravessador = atravessador->filho[index];
   }
 }
-
 
 void alteraQuantidade(int escolhaAlteracaoQtd, int id, int quantiaDeAlteracao)
 {
@@ -457,31 +465,38 @@ void alteraQuantidade(int escolhaAlteracaoQtd, int id, int quantiaDeAlteracao)
   while (atravessador != NULL)
   {
 
-    if(atravessador->id == id) {
-      if (escolhaAlteracaoQtd == 1) {
+    if (atravessador->id == id)
+    {
+      if (escolhaAlteracaoQtd == 1)
+      {
         atravessador->quantidade += quantiaDeAlteracao;
         return;
       }
-      else if (escolhaAlteracaoQtd == 2){
-        if ((atravessador->quantidade - quantiaDeAlteracao) < 0) {
+      else if (escolhaAlteracaoQtd == 2)
+      {
+        if ((atravessador->quantidade - quantiaDeAlteracao) < 0)
+        {
           printf("Proibido reduzir a quantia de um produto para menos que 0.\n");
         }
-        else {
+        else
+        {
           atravessador->quantidade -= quantiaDeAlteracao;
           return;
         }
-  
       }
-      else {
+      else
+      {
         printf("Opção não existente.");
         return;
       }
     }
-    
-    if((id - atravessador->id) > 0){
+
+    if ((id - atravessador->id) > 0)
+    {
       index = 1;
     }
-    else {
+    else
+    {
       index = 0;
     }
     atravessador = atravessador->filho[index];
@@ -528,33 +543,35 @@ int main()
       imprimeArvore(raiz);
       scanf("%d", &id);
 
-      if (existencia = existe(id) == 1) {
+      if (existencia = existe(id) == 1)
+      {
 
         printf("Você deseja adicionar ou subtrair a quantidade deste produto?\n");
         printf("1) Adicionar.\n2) Subtrair.\n");
         int escolhaAlteracaoQtd, quantiaDeAlteracao;
         scanf("%d", &escolhaAlteracaoQtd);
 
-        switch(escolhaAlteracaoQtd){
-          case 1: //Adição
-            printf("Em quantas unidades?\n");
-            scanf("%d", &quantiaDeAlteracao);
-            alteraQuantidade(escolhaAlteracaoQtd, id, quantiaDeAlteracao);
-            break;
+        switch (escolhaAlteracaoQtd)
+        {
+        case 1: // Adição
+          printf("Em quantas unidades?\n");
+          scanf("%d", &quantiaDeAlteracao);
+          alteraQuantidade(escolhaAlteracaoQtd, id, quantiaDeAlteracao);
+          break;
 
-          case 2:
-            printf("Em quantas unidades?\n");
-            scanf("%d", &quantiaDeAlteracao);
-            alteraQuantidade(escolhaAlteracaoQtd, id, quantiaDeAlteracao);
-            break;
+        case 2:
+          printf("Em quantas unidades?\n");
+          scanf("%d", &quantiaDeAlteracao);
+          alteraQuantidade(escolhaAlteracaoQtd, id, quantiaDeAlteracao);
+          break;
 
-          default:
-            printf("Opção não existente.\n");
-            break;
-
-        }  
+        default:
+          printf("Opção não existente.\n");
+          break;
+        }
       }
-      else {
+      else
+      {
         printf("Produto não cadastrado.\n");
       }
       break;
@@ -566,16 +583,18 @@ int main()
       printf("Até mais!\n");
       exit(0);
 
-    //Case bônus
+    // Case bônus
     case 8:
       printf("Qual o ID do produto que você gostaria de consultar a existência?\n");
       scanf("%d", &id);
       existencia = existe(id);
 
-      if (existencia == 1) {
+      if (existencia == 1)
+      {
         printf("Existe.\n");
       }
-      else {
+      else
+      {
         printf("Não existe.\n");
       }
       break;
