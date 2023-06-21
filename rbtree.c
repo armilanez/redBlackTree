@@ -503,6 +503,21 @@ void alteraQuantidade(int escolhaAlteracaoQtd, int id, int quantiaDeAlteracao)
   }
 }
 
+
+void imprimeEmEstoque(No *no)
+{
+  if (no != NULL)
+  {
+    imprimeEmEstoque(no->filho[0]);
+    if (no->quantidade > 0) {
+      printf("%d: %s - %d unidades.\n", no->id, no->nomeProduto, no->quantidade);
+    }
+    imprimeEmEstoque(no->filho[1]);
+  }
+  return;
+}
+
+
 // Função main, onde a árvore é operada.
 int main()
 {
@@ -515,7 +530,8 @@ int main()
     printf("1) Cadastrar um novo Produto.\n");
     printf("2) Excluir um produto cadastrado.\n");
     printf("3) Atualizar a quantidade de um produto no estoque.\n");
-    printf("6) Imprimir a Árvore Rubro-Negra.\n");
+    printf("4) Listar todos os produtos cadastrados.\n");
+    printf("5) Listar todos os produtos em estoque.\n");
     printf("7) Sair.\n");
     printf("8) Consultar existência.\n\n");
     printf("Escolha: ");
@@ -532,12 +548,14 @@ int main()
       insereNo(id, quantidade, nomeProduto);
       printf("\n");
       break;
+      
     case 2:
       printf("Insira o ID do elemento que deseja excluir: ");
       scanf("%d", &id);
       removeNo(id);
       printf("\n");
       break;
+
     case 3:
       printf("Escolha o ID do produto que deseja alterar a quantidade:\n\n");
       imprimeArvore(raiz);
@@ -575,10 +593,17 @@ int main()
         printf("Produto não cadastrado.\n");
       }
       break;
-    case 6:
+
+    case 4:
       imprimeArvore(raiz);
       printf("\n");
       break;
+
+    case 5:
+      imprimeEmEstoque(raiz);
+      printf("\n");
+      break;
+
     case 7:
       printf("Até mais!\n");
       exit(0);
