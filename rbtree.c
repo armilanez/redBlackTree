@@ -42,8 +42,13 @@ No *criaNo(int id, int quantidade, char *nomeProduto)
 // Função responsável por inserir um nó na árvore.
 void insereNo(int id, int quantidade, char *nomeProduto)
 {
-  No *arvore[98], *atravessador, *novoNo, *atual, *aux;
-  int caminhoPercorrido[98], altura = 0, index;
+
+  //A árvore será inclusa numa pilha. Essa abordagem de vetores faz com que
+  //possamos fazer o mesmo na estrutura do nó, armazenando os filhos também
+  //em vetores. Essa abordagem sem referência para o pai é mais custosa
+  //computacionalmente falando, porém economiza espaço na memória.
+  No *arvore[100], *atravessador, *novoNo, *atual, *aux;
+  int caminhoPercorrido[100], altura = 0, direcao;
   atravessador = raiz;
   if (!raiz)
   {
@@ -53,6 +58,8 @@ void insereNo(int id, int quantidade, char *nomeProduto)
 
   arvore[altura] = raiz;
   caminhoPercorrido[altura++] = 0;
+
+  //While que percorre a árvore até chegar numa folha.
   while (atravessador != NULL)
   {
 
@@ -64,22 +71,29 @@ void insereNo(int id, int quantidade, char *nomeProduto)
 
     if ((id - atravessador->id) > 0)
     {
-      index = 1;
+      direcao = 1;
     }
     else
     {
-      index = 0;
+      direcao = 0;
     }
     arvore[altura] = atravessador;
-    atravessador = atravessador->filho[index];
-    caminhoPercorrido[altura++] = index;
+    atravessador = atravessador->filho[direcao];
+    caminhoPercorrido[altura++] = direcao;
   }
-  arvore[altura - 1]->filho[index] = novoNo = criaNo(id, quantidade, nomeProduto);
+
+  //Onde acontece a inserção de fato
+  arvore[altura - 1]->filho[direcao] = novoNo = criaNo(id, quantidade, nomeProduto);
+
+
+  //Fixups
   while ((altura >= 3) && (arvore[altura - 1]->cor == RUBRO))
   {
     if (caminhoPercorrido[altura - 2] == 0)
     {
       aux = arvore[altura - 2]->filho[1];
+
+      //Caso 1: Tio rubro, apenas recoloração
       if (aux != NULL && aux->cor == RUBRO)
       {
         arvore[altura - 2]->cor = RUBRO;
@@ -87,7 +101,9 @@ void insereNo(int id, int quantidade, char *nomeProduto)
         altura = altura - 2;
       }
       else
-      {
+      {        
+        // Caso 2: Se o tio do nó atual é negro e o nó atual é um filho à direita
+
         if (caminhoPercorrido[altura - 1] == 0)
         {
           aux = arvore[altura - 1];
@@ -119,6 +135,8 @@ void insereNo(int id, int quantidade, char *nomeProduto)
     else
     {
       aux = arvore[altura - 2]->filho[0];
+
+      //Caso 3: Tio rubro, recolore
       if ((aux != NULL) && (aux->cor == RUBRO))
       {
         arvore[altura - 2]->cor = RUBRO;
@@ -132,6 +150,7 @@ void insereNo(int id, int quantidade, char *nomeProduto)
           aux = arvore[altura - 1];
         }
         else
+        //Caso 4: Tio negro e nó atual é filho à esquerda
         {
           atual = arvore[altura - 1];
           aux = atual->filho[0];
@@ -156,20 +175,26 @@ void insereNo(int id, int quantidade, char *nomeProduto)
       }
     }
   }
+
+  //Raíz é sempre negra
   raiz->cor = NEGRO;
 }
 
 // Delete a no
 void removeNo(int id)
 {
-  No *arvore[98], *atual, *aux;
+  No *arvore[100], *atual, *aux;
 
   // O ponteiro atravessador é o que comumente vemos em aula como T.
   // É aquele ponteiro que vai atravessando e traçando o caminho percorrido pela árvore.
   No *atravessador;
 
   No *paiAtual, *filhoAtual, *irmaoAtual;
-  int caminhoPercorrido[98], altura = 0, direcao, i;
+
+  //A variável caminhoPercorrido[] guarda o caminho percorrido, com
+  //valores de 0 e 1. Se temos, por exemplo, o vetor caminhoPercorrido[1,0,1],
+  //isso significa que o caminho feito foi direita, esquerda, direita.
+  int caminhoPercorrido[100], altura = 0, direcao, i;
   enum cores cor;
 
   if (!raiz)
@@ -179,6 +204,8 @@ void removeNo(int id)
   }
 
   atravessador = raiz;
+
+  //Laço while que irá encontrar o nó a ser excluído
   while (atravessador != NULL)
   {
     if ((id - atravessador->id) == 0)
@@ -195,11 +222,13 @@ void removeNo(int id)
       direcao = 0;
     }
 
-    arvore[altura] = atravessador;
-    caminhoPercorrido[altura++] = direcao;
-    atravessador = atravessador->filho[direcao];
+    arvore[altura] = atravessador; //Adiciona nó na árvore
+    caminhoPercorrido[altura++] = direcao; //Adiciona direção percorrida no caminhoPercorrido[]
+    atravessador = atravessador->filho[direcao]; //Vai pro próximo nó
   }
 
+  //Aqui serão tratados os casos quando o nó a ser deletado
+  //*NÃO* tem um filho à direita.
   if (atravessador->filho[1] == NULL)
   {
     if ((atravessador == raiz) && (atravessador->filho[0] == NULL))
@@ -219,7 +248,10 @@ void removeNo(int id)
   }
   else
   {
+
     atual = atravessador->filho[1];
+
+    //Caso 1: Nó tem filho à direita
     if (atual->filho[0] == NULL)
     {
       atual->filho[0] = atravessador->filho[0];
@@ -242,6 +274,8 @@ void removeNo(int id)
     else
     {
       i = altura++;
+
+      //Acha o sucessor do nó a ser deletado
       while (1)
       {
         caminhoPercorrido[altura] = 0;
@@ -276,6 +310,7 @@ void removeNo(int id)
   if (altura < 1)
     return;
 
+  //Caso 2: Nó é negro e tem filho rubro
   if (atravessador->cor == NEGRO)
   {
     while (1)
@@ -294,6 +329,8 @@ void removeNo(int id)
       {
         irmaoAtual = arvore[altura - 1]->filho[1];
 
+        
+        // Caso 3: Nó é negro, não tem filho rubro, e irmão é negro
         if (!irmaoAtual)
           break;
 
@@ -320,6 +357,8 @@ void removeNo(int id)
           irmaoAtual = arvore[altura - 1]->filho[1];
         }
 
+
+        // Caso 4: Nó é negro, não tem filho rubro, irmão é negro, e sobrinhos são negros
         if ((!irmaoAtual->filho[0] || irmaoAtual->filho[0]->cor == NEGRO) &&
             (!irmaoAtual->filho[1] || irmaoAtual->filho[1]->cor == NEGRO))
         {
@@ -352,6 +391,9 @@ void removeNo(int id)
           break;
         }
       }
+
+      //Aqui acontecem a mesma coisa, são casos análogos aos anteriores.
+      //A diferença é que o irmão está à esquerda.
       else
       {
         irmaoAtual = arvore[altura - 1]->filho[0];
@@ -429,12 +471,14 @@ void imprimeArvore(No *no)
   return;
 }
 
+//Função bônus implementada para facilitar saber se um nó existe na stack ou não.
+//Se existir, retorna 1.
 int existe(int id)
 {
 
   No *atravessador;
   atravessador = raiz;
-  int index;
+  int direcao;
 
   while (atravessador != NULL)
   {
@@ -446,27 +490,30 @@ int existe(int id)
 
     if ((id - atravessador->id) > 0)
     {
-      index = 1;
+      direcao = 1;
     }
     else
     {
-      index = 0;
+      direcao = 0;
     }
-    atravessador = atravessador->filho[index];
+    atravessador = atravessador->filho[direcao];
   }
 }
 
+
+//Função que altera o atributo quantidade de um nó.
 void alteraQuantidade(int escolhaAlteracaoQtd, int id, int quantiaDeAlteracao)
 {
   No *atravessador;
   atravessador = raiz;
-  int index;
+  int direcao;
 
   while (atravessador != NULL)
   {
 
     if (atravessador->id == id)
     {
+      //Se a escolhaAlteraçãoQtd for 1, adiciona. Se for 2, reduz.
       if (escolhaAlteracaoQtd == 1)
       {
         atravessador->quantidade += quantiaDeAlteracao;
@@ -493,17 +540,18 @@ void alteraQuantidade(int escolhaAlteracaoQtd, int id, int quantiaDeAlteracao)
 
     if ((id - atravessador->id) > 0)
     {
-      index = 1;
+      direcao = 1;
     }
     else
     {
-      index = 0;
+      direcao = 0;
     }
-    atravessador = atravessador->filho[index];
+    atravessador = atravessador->filho[direcao];
   }
 }
 
 
+//Imprime todos os elementos da árvore
 void imprimeEmEstoque(No *no)
 {
   if (no != NULL)
@@ -518,6 +566,7 @@ void imprimeEmEstoque(No *no)
 }
 
 
+
 // Função main, onde a árvore é operada.
 int main()
 {
@@ -525,8 +574,9 @@ int main()
   char nomeProduto[50];
   while (1)
   {
-    printf("-------------------------------------------------------\n");
-    printf("Olá. Que operação deseja realizar?\n\n");
+    printf("-------------------------------------------------------------------\n");
+    printf("Olá, bem-vindo à UFES Import. Que operação deseja realizar?\n");
+    printf("-------------------------------------------------------------------\n");
     printf("1) Cadastrar um novo Produto.\n");
     printf("2) Excluir um produto cadastrado.\n");
     printf("3) Atualizar a quantidade de um produto no estoque.\n");
@@ -534,6 +584,7 @@ int main()
     printf("5) Listar todos os produtos em estoque.\n");
     printf("7) Sair.\n");
     printf("8) Consultar existência.\n\n");
+    printf("-------------------------------------------------------------------\n");
     printf("Escolha: ");
     scanf("%d", &escolha);
     switch (escolha)
@@ -548,7 +599,7 @@ int main()
       insereNo(id, quantidade, nomeProduto);
       printf("\n");
       break;
-      
+
     case 2:
       printf("Insira o ID do elemento que deseja excluir: ");
       scanf("%d", &id);
@@ -602,6 +653,9 @@ int main()
     case 5:
       imprimeEmEstoque(raiz);
       printf("\n");
+      break;
+
+    case 6:
       break;
 
     case 7:
