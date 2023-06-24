@@ -53,6 +53,7 @@ void insereNo(int id, int quantidade, char *nomeProduto)
   if (!raiz)
   {
     raiz = criaNo(id, quantidade, nomeProduto);
+    raiz->cor = NEGRO;
     return;
   }
 
