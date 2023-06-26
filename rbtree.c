@@ -390,7 +390,7 @@ void removeNo(int id)
         }
       }
 
-      // Aqui acontecem a mesma coisa, são casos análogos aos anteriores.
+      // Aqui acontecem as mesmas coisas, são casos análogos aos anteriores.
       // A diferença é que o irmão está à esquerda.
       else
       {
