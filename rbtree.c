@@ -102,8 +102,6 @@ void insereNo(int id, int quantidade, char *nomeProduto)
       }
       else
       {
-        // Caso 2: Se o tio do nó atual é negro e o nó atual é um filho à direita
-
         if (caminhoPercorrido[altura - 1] == 0)
         {
           aux = arvore[altura - 1];
@@ -120,6 +118,9 @@ void insereNo(int id, int quantidade, char *nomeProduto)
         atual->cor = RUBRO;
         aux->cor = NEGRO;
         atual->filho[0] = aux->filho[1];
+
+        // Caso 2: Se o tio do nó atual é negro e o nó atual é um filho à direita
+        //Rotação + recoloração
         aux->filho[1] = atual;
         if (atual == raiz)
         {
@@ -136,7 +137,8 @@ void insereNo(int id, int quantidade, char *nomeProduto)
     {
       aux = arvore[altura - 2]->filho[0];
 
-      // Caso 3: Tio rubro, recolore
+      // Caso 1: Tio rubro, recolore,
+      // porém para o filho esquerdo. O caso anterior foi para o direito.
       if ((aux != NULL) && (aux->cor == RUBRO))
       {
         arvore[altura - 2]->cor = RUBRO;
@@ -150,7 +152,6 @@ void insereNo(int id, int quantidade, char *nomeProduto)
           aux = arvore[altura - 1];
         }
         else
-        // Caso 4: Tio negro e nó atual é filho à esquerda
         {
           atual = arvore[altura - 1];
           aux = atual->filho[0];
@@ -162,6 +163,9 @@ void insereNo(int id, int quantidade, char *nomeProduto)
         aux->cor = NEGRO;
         atual->cor = RUBRO;
         atual->filho[1] = aux->filho[0];
+
+        // Caso 3: Tio negro e nó atual é filho à esquerda
+        // Rotaciona e recolore
         aux->filho[0] = atual;
         if (atual == raiz)
         {
@@ -180,7 +184,8 @@ void insereNo(int id, int quantidade, char *nomeProduto)
   raiz->cor = NEGRO;
 }
 
-// Delete a no
+// Função responsável pro deletar um nó da árvore
+// E fazer seus fixups logo em seguida, caso necessário
 void removeNo(int id)
 {
   No *arvore[100], *atual, *aux;
@@ -227,8 +232,8 @@ void removeNo(int id)
     atravessador = atravessador->filho[direcao]; // Vai pro próximo nó
   }
 
-  // Aqui serão tratados os casos quando o nó a ser deletado
-  //*NÃO* tem um filho à direita.
+
+  // Caso 1: Se o nó a ser deletado não tiver filho à direita
   if (atravessador->filho[1] == NULL)
   {
     if ((atravessador == raiz) && (atravessador->filho[0] == NULL))
@@ -251,7 +256,7 @@ void removeNo(int id)
 
     atual = atravessador->filho[1];
 
-    // Caso 1: Nó tem filho à direita
+  // Caso 2: Se o nó a ser deletado tem um nó à direita SEM um filho à esquerda.
     if (atual->filho[0] == NULL)
     {
       atual->filho[0] = atravessador->filho[0];
@@ -271,11 +276,13 @@ void removeNo(int id)
       caminhoPercorrido[altura] = 1;
       arvore[altura++] = atual;
     }
+
+
+    // Caso 3: Se o nó a ser deletado tem um filho à esquerda COM um filho à direita.
     else
     {
       i = altura++;
 
-      // Acha o sucessor do nó a ser deletado
       while (1)
       {
         caminhoPercorrido[altura] = 0;
@@ -310,12 +317,15 @@ void removeNo(int id)
   if (altura < 1)
     return;
 
-  // Caso 2: Nó é negro e tem filho rubro
+
+  // Caso a remoção demande, aqui começam os fixups.
   if (atravessador->cor == NEGRO)
   {
     while (1)
     {
       paiAtual = arvore[altura - 1]->filho[caminhoPercorrido[altura - 1]];
+
+      // Caso 1: Se o pai do nó deletado é rubro
       if (paiAtual != NULL && paiAtual->cor == RUBRO)
       {
         paiAtual->cor = NEGRO;
@@ -329,10 +339,10 @@ void removeNo(int id)
       {
         irmaoAtual = arvore[altura - 1]->filho[1];
 
-        // Caso 3: Nó é negro, não tem filho rubro, e irmão é negro
         if (!irmaoAtual)
           break;
 
+        // Caso 2: Se o irmão do nó deletado for rubro
         if (irmaoAtual->cor == RUBRO)
         {
           arvore[altura - 1]->cor = RUBRO;
@@ -356,7 +366,7 @@ void removeNo(int id)
           irmaoAtual = arvore[altura - 1]->filho[1];
         }
 
-        // Caso 4: Nó é negro, não tem filho rubro, irmão é negro, e sobrinhos são negros
+        // Caso 3: Se o irmão e os dois filhos do nó deletado forem negros.
         if ((!irmaoAtual->filho[0] || irmaoAtual->filho[0]->cor == NEGRO) &&
             (!irmaoAtual->filho[1] || irmaoAtual->filho[1]->cor == NEGRO))
         {
@@ -364,6 +374,7 @@ void removeNo(int id)
         }
         else
         {
+          // Caso 4: Se o irmão do nó deletado tem um dilho à direita que seja negro.
           if (!irmaoAtual->filho[1] || irmaoAtual->filho[1]->cor == NEGRO)
           {
             filhoAtual = irmaoAtual->filho[0];
@@ -390,16 +401,16 @@ void removeNo(int id)
         }
       }
 
-      // Aqui acontecem a mesma coisa, são casos análogos aos anteriores.
-      // A diferença é que o irmão está à esquerda.
       else
       {
         irmaoAtual = arvore[altura - 1]->filho[0];
         if (!irmaoAtual)
           break;
 
+        // Caso 2: Se o irmão do nó deletado é rubro.
         if (irmaoAtual->cor == RUBRO)
         {
+          
           arvore[altura - 1]->cor = RUBRO;
           irmaoAtual->cor = NEGRO;
           arvore[altura - 1]->filho[0] = irmaoAtual->filho[1];
@@ -420,6 +431,8 @@ void removeNo(int id)
 
           irmaoAtual = arvore[altura - 1]->filho[0];
         }
+
+        // Caso 3: Se o irmão do nó deletado e seus filhos são negros.
         if ((!irmaoAtual->filho[0] || irmaoAtual->filho[0]->cor == NEGRO) &&
             (!irmaoAtual->filho[1] || irmaoAtual->filho[1]->cor == NEGRO))
         {
@@ -427,6 +440,7 @@ void removeNo(int id)
         }
         else
         {
+          // Caso 4: Se o irmão do nó deletado tem um filho negro à esquerda.
           if (!irmaoAtual->filho[0] || irmaoAtual->filho[0]->cor == NEGRO)
           {
             filhoAtual = irmaoAtual->filho[1];
